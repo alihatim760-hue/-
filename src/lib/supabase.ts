@@ -1,18 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 1. جلب قيم روابط ومفاتيح سوبابيس من بيئة التشغيل
+// 1. جلب متغيرات البيئة التي تم تكوينها في Vite و Netlify
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// 2. فحص برميجي للتأكد من أن القيم تم قراءتها بنجاح
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    "⚠️ تنبيه برميجي: لم يتم العثور على متغيرات البيئة الخاصة بـ Supabase بشكل صحيح في بيئة الإنتاج."
-  );
+// 2. توثيق الفحص: طباعة القيم في Console المتصفح عند بدء التشغيل للتأكد من وصولها (لأغراض المراقبة البرمجية)
+console.log("Supabase URL initialized:", supabaseUrl ? "حاضر وبإنتظار الربط" : "فارغ تماماً");
+
+// 3. بناء العميل بشكل مباشر مع التحقق من وجود النص البرمجي
+if (!supabaseUrl) {
+  throw new Error("Missing environment variable: VITE_SUPABASE_URL");
 }
 
-// 3. إنشاء عميل الاتصال مع وضع قيم احتياطية لتفادي خطأ الانهيار (Must be a valid HTTP or HTTPS URL)
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder-url-for-netlify.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
-);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey || '');
