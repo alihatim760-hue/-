@@ -1,21 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 1. استخراج المتغيرات مباشرة من بيئة تشغيل Vite السحابية
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// 1. جلب القيم الخام من بيئة تشغيل Vite
+const rawUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// 2. طباعة فحص أمان البيانات في متصفح المطورين للتأكد من وصول القيم
+// 2. معالجة برمجية لتنظيف النصوص من علامات التنصيص والفراغات الزائدة
+const supabaseUrl = rawUrl.replace(/['"]/g, '').trim();
+const supabaseAnonKey = rawKey.replace(/['"]/g, '').trim();
+
+// 3. طباعة فحص أمان البيانات في متصفح المطورين للتأكد من وصول القيم
 console.log("حالة رابط قاعدة البيانات الممرر:", supabaseUrl ? "✅ متوفر ويتم الحقن" : "❌ null أو غير مقروء");
 console.log("حالة مفتاح الأمان الممرر:", supabaseAnonKey ? "✅ متوفر ويتم الحقن" : "❌ null أو غير مقروء");
 
-// 3. التحقق البرمجي الإلزامي: إذا كانت المتغيرات مفقودة، يتم إطلاق تنبيه واضح للمطور
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    "🚨 خطأ إعدادات: متغيرات البيئة الخاصة بـ Supabase مفقودة تماماً! " +
-    "يرجى التحقق من حفظها في لوحة تحكم Netlify وإعادة بناء المشروع."
-  );
+// 4. فحص احترازي للتأكد من صحة الرابط بعد التنظيف
+if (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://')) {
+  console.error("🚨 تنبيه برمجى: الرابط لا يبدأ بـ http أو https! القيمة الحالية هي:", supabaseUrl);
 }
 
-// 4. إنشاء وتصدير عميل الاتصال الحقيقي بقاعدة البيانات
-// ملاحظة: إذا كانت القيم فارغة، سيتم تمرير نصوص فارغة لتجنب انهيار التطبيق ومراقبة الخطأ بدقة
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
+// 5. إنشاء وتصدير عميل الاتصال الحقيقي بقاعدة البيانات بالقيم النظيفة
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
