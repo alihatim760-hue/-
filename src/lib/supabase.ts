@@ -1,15 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 1. جلب متغيرات البيئة التي تم تكوينها في Vite و Netlify
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// 1. جلب القيم وتحويلها لنصوص نظيفة
+const rawUrl = import.meta.env.VITE_SUPABASE_URL;
+const rawKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// 2. توثيق الفحص: طباعة القيم في Console المتصفح عند بدء التشغيل للتأكد من وصولها (لأغراض المراقبة البرمجية)
-console.log("Supabase URL initialized:", supabaseUrl ? "حاضر وبإنتظار الربط" : "فارغ تماماً");
+// 2. تنظيف المتغيرات من أي قيم نصية مشوهة مثل "undefined" الناتجة عن المجمّع
+const supabaseUrl = rawUrl && rawUrl !== 'undefined' && rawUrl.startsWith('http') ? rawUrl : null;
+const supabaseAnonKey = rawKey && rawKey !== 'undefined' ? rawKey : null;
 
-// 3. بناء العميل بشكل مباشر مع التحقق من وجود النص البرمجي
-if (!supabaseUrl) {
-  throw new Error("Missing environment variable: VITE_SUPABASE_URL");
+// 3. فحص وطباعة الحالة الحقيقية بدقة في الـ Console
+console.log("الرابط الفعلي الحقيقي الممرر:", supabaseUrl);
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn("⚠️ تنبيه: إعدادات الرابط غير صالحة أو مشوهة.");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey || '');
+// 4. تشغيل العميل بأمان
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder-url.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
