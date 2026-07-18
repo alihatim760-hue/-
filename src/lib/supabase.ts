@@ -1,21 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
-// 1. جلب رابط مشروع سوبابيس السحابي ومفتاح الأمان العام من ملف البيئة (.env)
+// 1. جلب قيم روابط ومفاتيح سوبابيس من بيئة التشغيل
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// 2. فحص أمني صارم للتأكد من أن المتغيرات تم قراءتها بنجاح لتجنب انهيار التطبيق عند النشر
+// 2. فحص برميجي للتأكد من أن القيم تم قراءتها بنجاح
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
-    'خطأ برميجي: متغيرات البيئة لـ Supabase مفقودة! تأكد من إعداد ملف .env بشكل صحيح.'
+  console.warn(
+    "⚠️ تنبيه برميجي: لم يتم العثور على متغيرات البيئة الخاصة بـ Supabase بشكل صحيح في بيئة الإنتاج."
   );
 }
 
-// 3. إنشاء وتصدير عميل سوبابيس (Supabase Client) مع إعدادات حفظ الجلسة وتحديثها تلقائياً
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,      // حفظ تسجيل دخول المستخدم حتى لو أغلق المتصفح
-    autoRefreshToken: true,    // تحديث صلاحية تسجيل الدخول تلقائياً في الخلفية
-    detectSessionInUrl: true,  // رصد روابط تأكيد الحساب تلقائياً في المتصفح
-  },
-});
+// 3. إنشاء عميل الاتصال مع وضع قيم احتياطية لتفادي خطأ الانهيار (Must be a valid HTTP or HTTPS URL)
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder-url-for-netlify.supabase.co',
+  supabaseAnonKey || 'placeholder-key'
+);
